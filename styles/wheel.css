@@ -1,0 +1,270 @@
+/* ==========================================================
+   Wheel Stylesheet: Nintendo Switch 2 Light Mode Stage
+   Strict Compliance: No blue/purple gradients, solid fills,
+   crisp geometric pointer, Switch Red flat button.
+   ========================================================== */
+
+.wheel-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 760px;
+}
+
+.wheel-stage {
+  position: relative;
+  width: 100%;
+  max-width: 760px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+/* ==========================================================
+   Pointer (Right Needle Indicator - Switch Flat Geometric)
+   ========================================================== */
+.pointer-wrapper {
+  position: absolute;
+  top: 50%;
+  right: -14px;
+  left: auto;
+  transform: translateY(-50%);
+  z-index: 20;
+  pointer-events: none;
+}
+
+.wheel-pointer {
+  width: 48px;
+  height: 36px;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  transform-origin: calc(100% - 10px) 50%;
+  will-change: transform;
+}
+
+.wheel-pointer.tick-bounce {
+  animation: pointerTick 0.15s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+@keyframes pointerTick {
+  0% {
+    transform: rotate(0deg);
+  }
+  35% {
+    transform: rotate(-25deg);
+  }
+  70% {
+    transform: rotate(-8deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.pointer-cap {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent-dark);
+  border: 2px solid #FFFFFF;
+  z-index: 2;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.pointer-needle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-right: 32px solid var(--primary);
+  z-index: 1;
+}
+
+/* ==========================================================
+   Outer Wheel Ring & Canvas (Light Geometric Disc)
+   ========================================================== */
+.wheel-outer-ring {
+  position: relative;
+  width: 96%;
+  height: 96%;
+  border-radius: 50%;
+  padding: 8px;
+  background: var(--bg-panel);
+  border: 2px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-flat);
+}
+
+.wheel-led-ring {
+  display: none;
+}
+
+#wheelCanvas {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
+  cursor: grab;
+  background: #FFFFFF;
+}
+
+#wheelCanvas:active {
+  cursor: grabbing;
+}
+
+/* ==========================================================
+   Center Hub (Clean Switch Disc Cap)
+   ========================================================== */
+.wheel-center-hub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 3px solid var(--border-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hub-inner {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+}
+
+.hub-inner svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ==========================================================
+   Bottom Controls & Spin Button (Nintendo Switch Red Button)
+   ========================================================== */
+.spin-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.primary-spin-btn {
+  position: relative;
+  background: var(--primary);
+  border: 2px solid var(--border-dark);
+  border-radius: var(--radius-xs);
+  padding: 14px 48px;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #FFFFFF;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px var(--border-dark);
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
+  overflow: hidden;
+  text-transform: uppercase;
+}
+
+.btn-glow {
+  display: none;
+}
+
+.btn-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spin-icon {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.4s ease;
+}
+
+.primary-spin-btn:hover {
+  background: var(--primary-hover);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px var(--border-dark);
+}
+
+.primary-spin-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--border-dark);
+}
+
+.primary-spin-btn:hover .spin-icon {
+  transform: rotate(180deg);
+}
+
+.primary-spin-btn:disabled,
+.primary-spin-btn.spinning {
+  background: var(--border-subtle);
+  border-color: var(--border-bold);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.primary-spin-btn.spinning .spin-icon {
+  animation: spinRotate 0.8s linear infinite;
+}
+
+@keyframes spinRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin-hint {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.spin-hint strong {
+  color: var(--text-primary);
+  background: var(--bg-panel);
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 640px) {
+  .wheel-stage {
+    max-width: 300px;
+  }
+  .primary-spin-btn {
+    padding: 12px 32px;
+    font-size: 1rem;
+  }
+}
