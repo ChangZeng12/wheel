@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const toastContainer = document.getElementById('toastContainer');
 
   let currentWinner = null;
-  const winnerAvatars = ['👑', '🌟', '🎉', '🍀', '✨', '🏆', '💎', '🎯', '🔥'];
+  const winnerAvatars = ['👑', '🌟', '🎉', '🍀', '🏆', '💎', '🎯', '🔥'];
 
   // Global Interaction Sound Feedback
   let lastInteractionSoundTime = 0;
@@ -212,9 +212,9 @@ document.addEventListener('DOMContentLoaded', () => {
         window.namesManager.toggle(item.id);
         renderList();
         if (wasEnabled) {
-          showToast(`Removed "${item.name}" from wheel`);
+          showToast(`Removed ${item.name} from wheel`);
         } else {
-          showToast(`Added "${item.name}" to wheel`);
+          showToast(`Added ${item.name} to wheel`);
         }
       });
 
@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (wheel.isSpinning) return;
     const active = window.namesManager.getActiveItems();
     if (active.length === 0) {
-      showToast('⚠️ No candidates available. Please select or add members!', 'warn');
+      showToast('No candidates available. Please select or add members!', 'warn');
       return;
     }
     wheel.spin(5);
@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const active = window.namesManager.getActiveItems();
       if (active.length === 0) {
-        showToast('⚠️ No candidates available. Please select or add members!', 'warn');
+        showToast('No candidates available. Please select or add members!', 'warn');
         return;
       }
 
@@ -525,8 +525,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function showToast(msg, type = 'info') {
     const toast = document.createElement('div');
     toast.className = 'toast';
+    const iconHtml = type === 'warn' ? '<span>⚠️</span>' : '';
     toast.innerHTML = `
-      <span>${type === 'warn' ? '⚠️' : '✨'}</span>
+      ${iconHtml}
       <span>${msg}</span>
     `;
     toastContainer.appendChild(toast);
