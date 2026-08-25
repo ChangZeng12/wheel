@@ -1,10 +1,10 @@
 /**
- * 公司内部固定成员名单与头像配置
+ * Company member list and avatar configuration
  * 
- * 💡 提示：
- * 1. 需要增减或修改成员时，直接编辑此文件中的列表即可。
- * 2. 头像图片存放在 assets/images/ 目录下。
- * 3. 修改保存后刷新浏览器页面即可生效。
+ * 💡 Tip:
+ * 1. To add, remove, or modify members, edit this list directly.
+ * 2. Avatar image files are located in the assets/images/ directory.
+ * 3. Save changes and refresh the browser page to apply.
  */
 window.COMPANY_MEMBERS = [
   { name: 'Haley',  avatar: 'assets/images/Haley.png',  color: '#E86262' },

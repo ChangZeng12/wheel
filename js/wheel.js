@@ -19,7 +19,7 @@ class LuckyWheel {
     this.onSpinStart = options.onSpinStart || (() => {});
     this.onSpinEnd = options.onSpinEnd || (() => {});
 
-    // Member fixed theme color palette
+    // Member fixed theme color palette (EXCLUSIVE to the 7 company members)
     this.memberThemeColors = {
       'haley': '#E86262',
       'rhea': '#80BEFD',
@@ -30,9 +30,18 @@ class LuckyWheel {
       'rachel': '#B87FFC'
     };
 
-    this.fallbackPalette = [
-      '#E86262', '#80BEFD', '#94E1C1', '#FE9F62', '#55C2C0', '#FEB313', '#B87FFC'
-    ];
+    this.exclusiveColors = new Set(
+      Object.values(this.memberThemeColors).map(c => c.toUpperCase())
+    );
+
+    // Curated custom palette for all other / new candidates
+    this.customPalette = [
+      '#FF70A6', '#4D96FF', '#6BCB77', '#FFD93D', '#FF6B8B', '#00D2D3',
+      '#A66CFF', '#FFA07A', '#20BF6B', '#45AAF2', '#FA8231', '#8854D0',
+      '#26DE81', '#4B7BEC', '#FC5C65', '#FED330', '#2BCBBA', '#FD9644',
+      '#45B649', '#E056FD', '#686DE0', '#30336B', '#FFBE76', '#BADC58',
+      '#F6E58D', '#7ED6DF', '#E05DA9', '#48DBFB', '#1DD1A1', '#F368E0'
+    ].filter(c => !this.exclusiveColors.has(c.toUpperCase()));
 
     this.lastTickSliceId = null;
     this.initCanvas();
@@ -59,20 +68,68 @@ class LuckyWheel {
 
   /**
    * Set active items with smooth in-place fan-out / collapse slice transitions
+   * Guarantees:
+   * 1. Preset members exclusively own their theme colors.
+   * 2. New members never receive preset theme colors.
+   * 3. No duplicate slice colors appear on the wheel.
    */
   setItems(namesList) {
+    const usedColorsOnWheel = new Set();
+
+    // Pass 1: Reserve exclusive colors for preset members
+    namesList.forEach((item) => {
+      const name = typeof item === 'string' ? item : item.name;
+      const cleanName = (name || '').trim().toLowerCase();
+      if (this.memberThemeColors[cleanName]) {
+        usedColorsOnWheel.add(this.memberThemeColors[cleanName].toUpperCase());
+      }
+    });
+
     const incomingItems = namesList.map((item, index) => {
       const name = typeof item === 'string' ? item : item.name;
       const id = typeof item === 'object' && item.id !== undefined ? item.id : `slice_${name}_${index}`;
       const avatar = typeof item === 'object' ? (item.avatar || '') : '';
 
       const cleanName = (name || '').trim().toLowerCase();
-      let color = (typeof item === 'object' && item.color) ? item.color : '';
-      if (!color && this.memberThemeColors[cleanName]) {
+      let color = '';
+
+      if (this.memberThemeColors[cleanName]) {
+        // Preset member exclusively gets their color
         color = this.memberThemeColors[cleanName];
-      }
-      if (!color) {
-        color = this.fallbackPalette[index % this.fallbackPalette.length];
+      } else {
+        // Custom candidate: check if item has a valid, non-exclusive, non-duplicate color
+        let candidateColor = (typeof item === 'object' && item.color) ? item.color : '';
+        const upper = candidateColor ? candidateColor.toUpperCase() : '';
+
+        if (upper && !this.exclusiveColors.has(upper) && !usedColorsOnWheel.has(upper)) {
+          color = candidateColor;
+          usedColorsOnWheel.add(upper);
+        } else {
+          // Find next available color from custom palette
+          let assigned = false;
+          for (const palColor of this.customPalette) {
+            const palUpper = palColor.toUpperCase();
+            if (!this.exclusiveColors.has(palUpper) && !usedColorsOnWheel.has(palUpper)) {
+              color = palColor;
+              usedColorsOnWheel.add(palUpper);
+              assigned = true;
+              break;
+            }
+          }
+
+          if (!assigned) {
+            // Golden angle HSL fallback
+            for (let i = 0; i < 360; i++) {
+              const hue = Math.round((i * 137.508) % 360);
+              const hex = `hsl(${hue}, 70%, 60%)`;
+              if (!usedColorsOnWheel.has(hex)) {
+                color = hex;
+                usedColorsOnWheel.add(hex);
+                break;
+              }
+            }
+          }
+        }
       }
 
       if (avatar && !this.imageCache.has(avatar)) {
@@ -118,7 +175,7 @@ class LuckyWheel {
           s.startWeight = s.currentWeight;
           s.targetWeight = 0;
           s.animStartTime = now;
-          s.animDuration = 400;
+          s.animDuration = 450;
         }
       }
     }
@@ -147,7 +204,7 @@ class LuckyWheel {
           existing.startWeight = existing.currentWeight;
           existing.targetWeight = 1;
           existing.animStartTime = now;
-          existing.animDuration = 400;
+          existing.animDuration = 450;
         }
         existing.name = incoming.name;
         existing.avatar = incoming.avatar;
@@ -165,7 +222,7 @@ class LuckyWheel {
           targetWeight: 1,
           startWeight: 0,
           animStartTime: now,
-          animDuration: 400
+          animDuration: 450
         };
         mergedSlices.push(newSlice);
         processedExisting.add(newSlice.id);
@@ -185,7 +242,7 @@ class LuckyWheel {
   }
 
   /**
-   * Run transition animation loop for expanding / collapsing slices
+   * Run transition animation loop for expanding / collapsing slices with Ease-Out curve
    */
   startTransition() {
     if (this.transitionAnimId) return;
@@ -195,11 +252,13 @@ class LuckyWheel {
 
       for (let i = 0; i < this.slices.length; i++) {
         const s = this.slices[i];
-        if (Math.abs(s.currentWeight - s.targetWeight) > 0.001) {
-          const elapsed = currentTime - s.animStartTime;
-          const progress = Math.min(Math.max(elapsed / (s.animDuration || 400), 0), 1);
-          // Ease-out cubic curve
-          const ease = 1 - Math.pow(1 - progress, 3);
+        if (Math.abs(s.currentWeight - s.targetWeight) > 0.0005) {
+          const elapsed = Math.max(0, currentTime - s.animStartTime);
+          const duration = s.animDuration || 450;
+          const progress = Math.min(Math.max(elapsed / duration, 0), 1);
+          
+          // Pure Ease-Out Quartic Curve: snappy responsive start with silky smooth deceleration
+          const ease = 1 - Math.pow(1 - progress, 4);
           s.currentWeight = s.startWeight + (s.targetWeight - s.startWeight) * ease;
 
           if (progress < 1) {
@@ -213,7 +272,7 @@ class LuckyWheel {
       }
 
       // Filter out completely collapsed slices
-      this.slices = this.slices.filter(s => !(s.targetWeight === 0 && s.currentWeight <= 0.001));
+      this.slices = this.slices.filter(s => !(s.targetWeight === 0 && s.currentWeight <= 0.0005));
 
       this.draw();
 

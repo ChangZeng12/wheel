@@ -1,70 +1,136 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>幸运人名转轮 - 随机点名与抽奖转盘</title>
-  <meta name="description" content="炫酷现代的人名选择转盘Web应用，支持自定义名单、批量导入、物理旋转音效、中奖礼花与名单淘汰模式。">
+  <title>Lucky Wheel - Random Name Picker & Team Draw</title>
+  <meta name="description" content="Minimalist lucky wheel web app for random name picking, team raffles, and customized draws with physics sound and confetti effects.">
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="styles/main.css?v=3">
-  <link rel="stylesheet" href="styles/wheel.css?v=3">
-  <link rel="stylesheet" href="styles/modal.css?v=3">
+  <link rel="stylesheet" href="styles/main.css?v=12">
+  <link rel="stylesheet" href="styles/wheel.css?v=12">
+  <link rel="stylesheet" href="styles/modal.css?v=12">
 </head>
 <body>
-  <div class="app-container">
-    <!-- Top Header -->
-    <header class="app-header">
-      <div class="header-logo">
-        <div class="logo-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <polygon points="12 6 15 12 12 18 9 12 12 6"/>
-          </svg>
+  <div class="app-layout">
+    <!-- Floating Top-Left Date Pill -->
+    <div class="floating-top-left">
+      <div class="pill-badge" id="floatingDatePill">
+        <span id="datePillText">Mon, Aug 24</span>
+      </div>
+    </div>
+
+    <!-- Floating Top-Right Action Buttons (Sound + History) -->
+    <div class="floating-top-right">
+      <button id="soundToggleBtn" class="circle-btn" data-tooltip="Mute Sound" aria-label="Toggle Sound">
+        <svg id="soundIconOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+        <svg id="soundIconOff" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+      </button>
+
+      <button id="historyCircleBtn" class="circle-btn" data-tooltip="Draw History" aria-label="Draw History">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Floating Bottom-Left Shortcut Prompts -->
+    <div class="floating-bottom-left">
+      <div class="control-prompts">
+        <div class="prompt-row">
+          <kbd class="key-badge">R</kbd>
+          <span class="prompt-label">shuffle</span>
         </div>
-        <div class="logo-text">
-          <h1>幸运人名转轮</h1>
-          <span class="badge">LUCKY WHEEL</span>
+        <div class="prompt-row">
+          <kbd class="key-badge">SPACE</kbd>
+          <span class="prompt-label">spin the wheel</span>
         </div>
       </div>
+    </div>
 
-      <div class="header-actions">
-        <!-- Sound Toggle -->
-        <button id="soundToggleBtn" class="icon-btn" title="切换音效" aria-label="切换音效">
-          <svg id="soundIconOn" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-          </svg>
-          <svg id="soundIconOff" class="btn-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-            <line x1="23" y1="9" x2="17" y2="15"></line>
-            <line x1="17" y1="9" x2="23" y2="15"></line>
-          </svg>
-        </button>
+    <!-- Main Workspace -->
+    <main class="main-workspace">
+      <!-- Left Floating Sidebar (NO background window box!) -->
+      <aside class="floating-sidebar">
 
-        <!-- History Drawer Button -->
-        <button id="historyBtn" class="header-action-btn" title="查看中奖历史">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <span>历史记录</span>
-          <span id="historyCountBadge" class="count-pill">0</span>
-        </button>
-      </div>
-    </header>
+        <!-- CANDIDATES & ACTIONS -->
+        <div class="control-section candidates-section">
+          <div class="section-header-row">
+            <div class="section-header-left">
+              <span class="section-label">CANDIDATES</span>
+              <span class="stat-pill" id="namesStatPill">
+                <span id="activeNamesCount">0</span> / <span id="totalNamesCount">0</span>
+              </span>
+            </div>
 
-    <!-- Main Workspace Layout (3-Column Centered Layout) -->
-    <main class="main-layout">
-      <!-- Left Spacer for Perfect Symmetric Center Alignment -->
-      <div class="layout-spacer" aria-hidden="true"></div>
+            <!-- Action Circle Buttons (Select All, Deselect All, Shuffle) -->
+            <div class="action-circle-group">
+              <button type="button" id="selectAllBtn" class="circle-action-btn" data-tooltip="Select All" aria-label="Select All">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="18 6 7 17 2 12"></polyline>
+                  <polyline points="22 10 15.5 16.5"></polyline>
+                </svg>
+              </button>
+              <button type="button" id="deselectAllBtn" class="circle-action-btn" data-tooltip="Deselect All" aria-label="Deselect All">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+              <button type="button" id="shuffleBtn" class="circle-action-btn" data-tooltip="Shuffle" aria-label="Shuffle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="16 3 21 3 21 8"></polyline>
+                  <line x1="4" y1="20" x2="21" y2="3"></line>
+                  <polyline points="21 16 21 21 16 21"></polyline>
+                  <line x1="15" y1="15" x2="21" y2="21"></line>
+                  <line x1="4" y1="4" x2="9" y2="9"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
 
-      <!-- Center: Wheel & Controls -->
-      <section class="wheel-section">
+          <!-- Scrollable Avatar Grid -->
+          <div class="names-list-wrapper">
+            <ul id="namesList" class="names-grid" aria-label="Candidate list">
+              <!-- Dynamically populated avatar chips -->
+            </ul>
+            <!-- Empty State View -->
+            <div id="emptyListState" class="empty-state hidden">
+              <div class="empty-icon">👥</div>
+              <p>No candidates available</p>
+              <span>Click "Select All" or add a new candidate</span>
+            </div>
+          </div>
+
+          <!-- Quick Add Form -->
+          <form id="addNameForm" class="add-name-form">
+            <div class="pill-input-group">
+              <input type="text" id="newNameInput" placeholder="Enter a name..." maxlength="30" autocomplete="off" />
+              <button type="submit" id="addNameBtn" class="pill-add-btn" title="Add Member">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Add</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </aside>
+
+      <!-- Center Wheel Stage -->
+      <section class="wheel-stage-container">
         <div class="wheel-stage">
-          <!-- Top Pointer / Indicator -->
+          <!-- Pointer Indicator -->
           <div class="pointer-wrapper">
             <div id="wheelPointer" class="wheel-pointer">
               <div class="pointer-needle"></div>
@@ -72,164 +138,54 @@
             </div>
           </div>
 
-          <!-- Wheel Outer Glowing Ring & Canvas -->
+          <!-- Wheel Outer Ring & Canvas -->
           <div class="wheel-outer-ring" id="wheelOuterRing">
-            <div class="wheel-led-ring" id="wheelLedRing"></div>
             <canvas id="wheelCanvas" width="800" height="800"></canvas>
             
-            <!-- Wheel Center Hub -->
+            <!-- Center Hub -->
             <div class="wheel-center-hub" id="wheelCenterHub">
-              <div class="hub-inner">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                </svg>
-              </div>
+              <div class="hub-inner"></div>
             </div>
           </div>
         </div>
 
-        <!-- Wheel Bottom Spin Controls -->
+        <!-- Spin Button Floating Controls -->
         <div class="spin-controls">
-          <button id="spinBtn" class="primary-spin-btn" aria-label="点击开始旋转">
-            <span class="btn-glow"></span>
-            <span class="btn-content">
-              <svg class="spin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-              </svg>
-              <span id="spinBtnText">开始旋转</span>
-            </span>
+          <button id="spinBtn" class="floating-spin-btn" aria-label="Click to Spin">
+            <svg class="spin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+            <span id="spinBtnText">Spin Now</span>
           </button>
         </div>
       </section>
-
-      <!-- Right: Name Management Panel (Figma Styled Avatar Grid) -->
-      <aside class="names-sidebar">
-        <div class="panel-header">
-          <div class="panel-title-row">
-            <h2>候选人员</h2>
-            <div class="names-stat">
-              <span id="activeNamesCount">0</span> / <span id="totalNamesCount">0</span> 已选
-            </div>
-          </div>
-          <!-- Action Chips Bar -->
-          <div class="list-actions-bar">
-            <button id="resetMembersBtn" class="action-chip" title="恢复为预设名单">重置</button>
-            <button id="selectAllBtn" class="action-chip">全选</button>
-            <button id="deselectAllBtn" class="action-chip">全不选</button>
-            <button id="shuffleBtn" class="action-chip" title="随机打乱顺序">打乱</button>
-          </div>
-        </div>
-
-        <!-- Scrollable Avatar Grid Container -->
-        <div class="names-list-wrapper">
-          <ul id="namesList" class="names-grid" aria-label="候选人员列表">
-            <!-- Dynamically populated avatar chips -->
-          </ul>
-          <!-- Empty State View -->
-          <div id="emptyListState" class="empty-state hidden">
-            <div class="empty-icon">👥</div>
-            <p>暂无候选成员</p>
-            <span>点击上方“重置”添加成员</span>
-          </div>
-        </div>
-
-        <!-- Footer Info & Quick Add Form -->
-        <div class="panel-footer">
-          <form id="addNameForm" class="add-name-form">
-            <div class="input-group">
-              <input type="text" id="newNameInput" placeholder="输入姓名添加成员..." maxlength="30" autocomplete="off" />
-              <button type="submit" id="addNameBtn" class="btn-add" title="添加成员">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                <span>添加</span>
-              </button>
-            </div>
-          </form>
-        </div>
-      </aside>
     </main>
   </div>
 
-  <!-- Winner Modal (中奖提示弹窗) -->
+  <!-- Winner Modal -->
   <div id="winnerModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="winnerModalTitle">
     <div class="modal-card winner-card">
-      <!-- Trophy / Celebration Icon Header -->
-      <div class="winner-icon-wrapper">
-        <div class="trophy-icon">🎉</div>
-      </div>
-
-      <h3 id="winnerModalTitle" class="winner-subtitle">恭喜被选中！</h3>
+      <h3 id="winnerModalTitle" class="winner-title">We have a winner!</h3>
       
-      <!-- Winner Name Badge -->
-      <div class="winner-display">
-        <div class="winner-avatar" id="winnerAvatar">🌟</div>
-        <div id="winnerName" class="winner-name">张三</div>
+      <!-- Winner Avatar -->
+      <div class="winner-avatar-container">
+        <div class="winner-avatar" id="winnerAvatar">
+          <!-- Populated by JS -->
+        </div>
       </div>
 
-      <p class="winner-desc">幸运之神眷顾了这位小伙伴！</p>
+      <!-- Winner Name -->
+      <div id="winnerName" class="winner-name">Winner</div>
 
-      <!-- Action Buttons -->
-      <div class="modal-actions">
-        <button id="winnerCloseBtn" class="modal-btn btn-secondary" title="保留在转轮中并关闭">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-          直接关闭
-        </button>
-
-        <button id="winnerRemoveBtn" class="modal-btn btn-danger" title="从转轮中移除并关闭">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="3 6 5 6 21 6"></polyline>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            <line x1="10" y1="11" x2="10" y2="17"></line>
-            <line x1="14" y1="11" x2="14" y2="17"></line>
-          </svg>
-          从转轮中移除
-        </button>
-
-        <button id="winnerSpinAgainBtn" class="modal-btn btn-primary" title="关闭并再次旋转">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-          </svg>
-          再转一次
-        </button>
+      <!-- Action Buttons (Close & Remove) -->
+      <div class="winner-modal-actions">
+        <button id="winnerCloseBtn" class="winner-action-btn btn-close" type="button">Close</button>
+        <button id="winnerRemoveBtn" class="winner-action-btn btn-remove" type="button">Remove</button>
       </div>
     </div>
   </div>
 
-  <!-- Batch Import Modal (批量导入弹窗) -->
-  <div id="batchImportModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="batchModalTitle">
-    <div class="modal-card import-card">
-      <div class="modal-card-header">
-        <h3 id="batchModalTitle">批量导入人名</h3>
-        <button id="batchCancelIconBtn" class="close-icon-btn" aria-label="关闭">✕</button>
-      </div>
-      <p class="import-help">每行输入一个人名，或使用逗号（, / ，）分隔多个名字：</p>
-      
-      <textarea id="batchTextarea" rows="8" placeholder="小明&#10;小红&#10;张伟, 李强, 王芳&#10;赵敏&#10;周芷若"></textarea>
-      
-      <div class="import-options">
-        <label class="checkbox-label">
-          <input type="radio" name="importMode" value="append" checked>
-          <span>追加到现有名单</span>
-        </label>
-        <label class="checkbox-label">
-          <input type="radio" name="importMode" value="replace">
-          <span>覆盖现有名单</span>
-        </label>
-      </div>
-
-      <div class="modal-card-footer">
-        <button id="batchCancelBtn" class="modal-btn btn-secondary">取消</button>
-        <button id="batchConfirmBtn" class="modal-btn btn-primary">确认导入</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- History Drawer (历史记录侧边抽屉) -->
+  <!-- History Drawer -->
   <div id="historyDrawer" class="drawer-overlay hidden">
     <div class="drawer-panel">
       <div class="drawer-header">
@@ -237,9 +193,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
-          <h3>中奖历史记录</h3>
+          <h3>Draw History</h3>
         </div>
-        <button id="closeHistoryBtn" class="close-icon-btn" aria-label="关闭抽屉">✕</button>
+        <button id="closeHistoryBtn" class="close-icon-btn" aria-label="Close drawer">✕</button>
       </div>
 
       <div class="drawer-body">
@@ -248,13 +204,19 @@
         </ul>
         <div id="historyEmptyState" class="empty-state">
           <div class="empty-icon">📜</div>
-          <p>暂无抽奖历史记录</p>
-          <span>快点击“开始旋转”开启第一轮吧！</span>
+          <p>No draw history yet</p>
+          <span>Spin the wheel to start your first round!</span>
         </div>
       </div>
 
       <div class="drawer-footer">
-        <button id="clearHistoryBtn" class="modal-btn btn-secondary btn-sm text-danger">清空历史</button>
+        <button id="clearHistoryBtn" class="clear-history-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          Clear History
+        </button>
       </div>
     </div>
   </div>
@@ -266,11 +228,11 @@
   <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
 
   <!-- Scripts -->
-  <script src="js/members.js?v=3"></script>
-  <script src="js/audio.js?v=3"></script>
-  <script src="js/confetti.js?v=3"></script>
-  <script src="js/wheel.js?v=3"></script>
-  <script src="js/names.js?v=3"></script>
-  <script src="js/app.js?v=3"></script>
+  <script src="js/members.js?v=12"></script>
+  <script src="js/audio.js?v=12"></script>
+  <script src="js/confetti.js?v=12"></script>
+  <script src="js/wheel.js?v=12"></script>
+  <script src="js/names.js?v=12"></script>
+  <script src="js/app.js?v=12"></script>
 </body>
 </html>
