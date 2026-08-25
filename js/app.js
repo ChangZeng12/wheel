@@ -160,9 +160,12 @@ document.addEventListener('DOMContentLoaded', () => {
       li.setAttribute('aria-pressed', item.enabled ? 'true' : 'false');
       li.setAttribute('title', item.enabled ? `Click to deselect ${item.name}` : `Click to select ${item.name}`);
 
+      const fallbackInitial = item.name ? item.name.charAt(0).toUpperCase() : '?';
+      const itemThemeColor = item.color || '#55C2C0';
+
       const avatarContent = item.avatar
-        ? `<img src="${item.avatar}" class="member-avatar-img" alt="${item.name}" onerror="this.outerHTML='<div class=\\'avatar-fallback\\'>${item.name.charAt(0)}</div>'" />`
-        : `<div class="avatar-fallback">${item.name.charAt(0)}</div>`;
+        ? `<img src="${item.avatar}" class="member-avatar-img" alt="${item.name}" onerror="this.outerHTML='<div class=\\'avatar-fallback\\' style=\\'background-color: ${itemThemeColor}; color: #FFFFFF;\\'>${fallbackInitial}</div>'" />`
+        : `<div class="avatar-fallback" style="background-color: ${itemThemeColor}; color: #FFFFFF;">${fallbackInitial}</div>`;
 
       // Only custom / added candidates show the delete button on hover
       const deleteBadgeHtml = isPreset ? '' : `
