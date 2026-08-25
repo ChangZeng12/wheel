@@ -521,7 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast('Draw history cleared');
   });
 
-  // Toast Notification System
+  // Toast Notification System (Smooth Bottom-Right Stacking)
   function showToast(msg, type = 'info') {
     const toast = document.createElement('div');
     toast.className = 'toast';
@@ -533,10 +533,13 @@ document.addEventListener('DOMContentLoaded', () => {
     toastContainer.appendChild(toast);
 
     setTimeout(() => {
-      if (toast.parentNode) {
-        toast.parentNode.removeChild(toast);
-      }
-    }, 3000);
+      toast.classList.add('toast-removing');
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 240);
+    }, 2600);
   }
 
   // Initial Boot
