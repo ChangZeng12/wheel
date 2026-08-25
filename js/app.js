@@ -417,29 +417,84 @@ document.addEventListener('DOMContentLoaded', () => {
     const history = window.namesManager.history;
     historyList.innerHTML = '';
 
-    if (!history || history.length === 0) {
+    const validSessions = (history || []).filter(s => s && s.draws && s.draws.length > 0);
+
+    if (validSessions.length === 0) {
       historyEmptyState.classList.remove('hidden');
-    } else {
-      historyEmptyState.classList.add('hidden');
-      history.forEach((rec, idx) => {
-        const li = document.createElement('li');
-        li.className = 'history-item';
+      return;
+    }
+
+    historyEmptyState.classList.add('hidden');
+
+    validSessions.forEach((session) => {
+      const groupEl = document.createElement('div');
+      groupEl.className = 'history-session-group';
+      groupEl.setAttribute('data-session-id', session.id);
+
+      const drawCount = session.draws.length;
+      const countLabel = drawCount === 1 ? '1 draw' : `${drawCount} draws`;
+
+      let drawsHtml = '';
+      session.draws.forEach((rec, idx) => {
         let avatarThumb = '';
         if (rec.avatar) {
           avatarThumb = `<img src="${rec.avatar}" class="history-avatar-img" alt="${rec.name}" onerror="this.style.display='none'" />`;
+        } else {
+          const initial = rec.name ? rec.name.charAt(0).toUpperCase() : '?';
+          const bgColor = rec.color || '#55C2C0';
+          avatarThumb = `<div class="history-avatar-fallback" style="background-color: ${bgColor};">${initial}</div>`;
         }
-        li.innerHTML = `
-          <div class="history-item-left">
-            <span class="history-index">${history.length - idx}</span>
-            ${avatarThumb}
-            <span class="history-name">${rec.name}</span>
-          </div>
-          <span class="history-time">${rec.timestamp}</span>
+
+        drawsHtml += `
+          <li class="history-item">
+            <div class="history-item-left">
+              <span class="history-index">${session.draws.length - idx}</span>
+              ${avatarThumb}
+              <span class="history-name">${rec.name}</span>
+            </div>
+            <span class="history-time">${rec.timestamp}</span>
+          </li>
         `;
-        historyList.appendChild(li);
       });
-    }
+
+      groupEl.innerHTML = `
+        <div class="session-header">
+          <div class="session-header-left">
+            <svg class="session-time-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span class="session-time-text">${session.formattedTime}</span>
+            <span class="session-count-badge">${countLabel}</span>
+          </div>
+          <button class="session-delete-btn" data-session-delete="${session.id}" title="Delete session" aria-label="Delete this session" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <ul class="session-draws-list">
+          ${drawsHtml}
+        </ul>
+      `;
+
+      historyList.appendChild(groupEl);
+    });
   }
+
+  // Delegated handler for deleting individual session groups
+  historyList.addEventListener('click', (e) => {
+    const deleteBtn = e.target.closest('[data-session-delete]');
+    if (deleteBtn) {
+      const sessionId = deleteBtn.getAttribute('data-session-delete');
+      if (sessionId) {
+        window.namesManager.removeSession(sessionId);
+        renderHistory();
+        showToast('Deleted visit history');
+      }
+    }
+  });
 
   if (historyCircleBtn) {
     historyCircleBtn.addEventListener('click', openHistoryDrawer);
@@ -452,7 +507,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   clearHistoryBtn.addEventListener('click', () => {
-    if (window.namesManager.history.length === 0) {
+    const hasDraws = (window.namesManager.history || []).some(s => s.draws && s.draws.length > 0);
+    if (!hasDraws) {
       showToast('History is already empty', 'warn');
       return;
     }

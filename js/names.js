@@ -76,11 +76,28 @@ function hslToHex(h, s, l) {
 class NamesManager {
   constructor() {
     this.storageKey = 'lucky_wheel_names_v5';
-    this.historyKey = 'lucky_wheel_history_v5';
+    this.historyKey = 'lucky_wheel_history_v6';
     this.defaultNames = ['Haley', 'Rhea', 'Vivian', 'Sarah', 'Chang', 'Daniel', 'Rachel'];
+
+    this.currentSessionId = 'session_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
+    this.currentSessionTime = Date.now();
 
     this.items = this.loadItems();
     this.history = this.loadHistory();
+  }
+
+  /**
+   * Format session visit timestamp cleanly (e.g. Aug 24, 2026 · 9:20 PM)
+   */
+  formatSessionTime(timestamp) {
+    const d = new Date(timestamp);
+    try {
+      const datePart = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      return `${datePart} · ${timePart}`;
+    } catch (e) {
+      return d.toLocaleString();
+    }
   }
 
   /**
@@ -238,12 +255,28 @@ class NamesManager {
 
   loadHistory() {
     try {
-      const saved = localStorage.getItem(this.historyKey);
+      const saved = localStorage.getItem(this.historyKey) || localStorage.getItem('lucky_wheel_history_v5');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // If already new session group format
+          if (parsed[0].draws && Array.isArray(parsed[0].draws)) {
+            return parsed;
+          }
+          // Migration from legacy flat records
+          if (parsed[0].name) {
+            return [{
+              id: 'session_legacy',
+              sessionTime: Date.now(),
+              formattedTime: 'Earlier Draws',
+              draws: parsed
+            }];
+          }
+        }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to load history', e);
+    }
     return [];
   }
 
@@ -300,23 +333,65 @@ class NamesManager {
     return this.items.filter(item => item.enabled);
   }
 
+  /**
+   * Add a winner record into the current page session group
+   */
   addWinnerToHistory(name, avatar = '') {
-    const record = {
-      id: 'rec_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
+    // Find or create the session group for current visit
+    let session = this.history.find(s => s.id === this.currentSessionId);
+    if (!session) {
+      session = {
+        id: this.currentSessionId,
+        sessionTime: this.currentSessionTime,
+        formattedTime: this.formatSessionTime(this.currentSessionTime),
+        draws: []
+      };
+      this.history.unshift(session);
+    }
+
+    const drawRecord = {
+      id: 'draw_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
       name: name,
       avatar: avatar || this.findAvatarForName(name),
-      timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      color: this.isPresetMember(name) ? this.getPresetMemberColor(name) : (this.items.find(i => i.name === name)?.color || '#55C2C0'),
+      timestamp: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })
     };
-    this.history.unshift(record);
-    if (this.history.length > 50) {
-      this.history = this.history.slice(0, 50);
+
+    session.draws.unshift(drawRecord);
+
+    // Limit maximum draws per session
+    if (session.draws.length > 50) {
+      session.draws = session.draws.slice(0, 50);
     }
+
+    // Limit maximum total sessions
+    if (this.history.length > 30) {
+      this.history = this.history.slice(0, 30);
+    }
+
     this.saveHistory();
-    return record;
+    return drawRecord;
   }
 
+  /**
+   * Delete an individual visit session
+   */
+  removeSession(sessionId) {
+    this.history = this.history.filter(s => s.id !== sessionId);
+    if (this.currentSessionId === sessionId) {
+      this.currentSessionId = 'session_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
+      this.currentSessionTime = Date.now();
+    }
+    this.saveHistory();
+  }
+
+  /**
+   * Clear all history sessions
+   */
   clearHistory() {
     this.history = [];
+    this.currentSessionId = 'session_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
+    this.currentSessionTime = Date.now();
     this.saveHistory();
   }
 }
