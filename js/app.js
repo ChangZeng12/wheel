@@ -539,7 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
           toast.parentNode.removeChild(toast);
         }
       }, 240);
-    }, 2600);
+    }, 1400);
   }
 
   // Initial Boot
