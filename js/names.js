@@ -11,7 +11,7 @@ const EXCLUSIVE_MEMBER_COLORS = {
   'sarah': '#FE9F62',
   'chang': '#55C2C0',
   'daniel': '#FEB313',
-  'rachel': '#B87FFC'
+  'rachél': '#B87FFC'
 };
 
 const EXCLUSIVE_COLOR_SET = new Set(
@@ -77,7 +77,7 @@ class NamesManager {
   constructor() {
     this.storageKey = 'lucky_wheel_names_v5';
     this.historyKey = 'lucky_wheel_history_v6';
-    this.defaultNames = ['Haley', 'Rhea', 'Vivian', 'Sarah', 'Chang', 'Daniel', 'Rachel'];
+    this.defaultNames = ['Haley', 'Rhea', 'Vivian', 'Sarah', 'Chang', 'Daniel', 'Rachél'];
 
     this.currentSessionId = 'session_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
     this.currentSessionTime = Date.now();
@@ -155,6 +155,13 @@ class NamesManager {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
+          // Pass 0: Migrate legacy 'Rachel' to 'Rachél'
+          parsed.forEach(item => {
+            if (item.name === 'Rachel') {
+              item.name = 'Rachél';
+            }
+          });
+
           const usedColors = new Set();
 
           // Pass 1: Assign and reserve colors for preset members

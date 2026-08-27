@@ -27,7 +27,7 @@ class LuckyWheel {
       'sarah': '#FE9F62',
       'chang': '#55C2C0',
       'daniel': '#FEB313',
-      'rachel': '#B87FFC'
+      'rachél': '#B87FFC'
     };
 
     this.exclusiveColors = new Set(

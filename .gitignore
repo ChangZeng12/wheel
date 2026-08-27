@@ -63,3 +63,8 @@ $RECYCLE.BIN/
 *.temp
 tmp/
 temp/
+
+# Local documentation & agent specifications
+AGENTS.md
+DESIGN.md
+

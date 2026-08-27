@@ -1,62 +1,64 @@
-# 幸运人名转轮 (Lucky Wheel WebApp)
+# Lucky Wheel WebApp
 
-炫酷、现代且开箱即用的人名选择与抽奖转盘 Web 应用。
-
----
-
-## 🌟 核心功能一览
-
-1. **中央高清 Canvas 转轮**：
-   - 动态计算扇区角度与自适应配色，支持 4K/Retina 高清屏抗锯齿渲染。
-   - 真实物理减速引擎（五次方平滑曲线），顶部金属指针碰撞微动效 (`tick-bounce`)。
-   - 内置 Web Audio API 机械齿轮滴答声、起转音效与胜利和弦音效。
-2. **右侧名单管理**：
-   - **勾选控制**：在候选列表中随时勾选/取消勾选，转盘动态实时增减扇区。
-   - **单条添加 & 批量导入**：支持单项输入或大段文本粘贴（支持逗号或换行自动拆分）。
-   - **快捷工具**：一键全选、全不选、随机打乱、一键清空。
-3. **中奖提示弹窗与流转**：
-   - 命中时触发全屏炫彩粒子礼花 (Confetti) 庆祝。
-   - **直接关闭**：保留该名字在转轮中。
-   - **从转轮中移除**：自动在右侧名单取消勾选该名字，转轮动态重新均分剩余人名，方便连抽不重复。
-   - **再转一次**：快速开启下一轮旋转。
-4. **辅助体验**：
-   - 音效静音与开启切换。
-   - 侧边抽屉式历史中奖记录（带时间戳）。
-   - 支持键盘 **Space 空格键** 快捷旋转、**Esc 键** 快速关闭弹窗。
+A modern, fast, and ready-to-use lucky wheel web application for name selection and raffles.
 
 ---
 
-## 📁 项目目录结构
+## Core Features
+
+1. **Central High-Definition Canvas Wheel**:
+   - Dynamic sector angle calculation and adaptive color schemes with 4K/Retina high-DPI antialiasing support.
+   - Realistic physics deceleration engine (quintic smooth curve) with top pointer collision micro-animation (`tick-bounce`).
+   - Integrated Web Audio API mechanical gear ticking, spin-up sound effects, and victory fanfare chords.
+2. **Name and Participant Management**:
+   - **Selection Control**: Check or uncheck candidates anytime to dynamically add or remove wheel sectors in real time.
+   - **Single Add & Batch Import**: Support single name input or large text pasting (with automatic splitting by commas or line breaks).
+   - **Quick Actions**: One-click Select All, Deselect All, Shuffle, and Clear All.
+3. **Winner Modal and Flow**:
+   - Full-screen colorful confetti celebration triggered upon winning.
+   - **Close**: Keep the winner in the wheel candidate pool.
+   - **Remove from Wheel**: Automatically uncheck the winner in the list, reallocating wheel sectors evenly for consecutive non-repeating draws.
+   - **Spin Again**: Instantly trigger the next spin round.
+4. **User Experience Enhancements**:
+   - Sound toggle (mute/unmute).
+   - Side drawer for winning history log with timestamps.
+   - Keyboard shortcuts: **Space** to spin, **Esc** to close modals.
+
+---
+
+## Project Structure
 
 ```
 wheel/
-├── index.html          # 主页面结构与语义化布局
+├── index.html          # Main HTML structure and semantic layout
+├── assets/             # Icons, sounds, and media resources
 ├── styles/
-│   ├── main.css        # 全局主题、深色玻璃拟态、布局与表单样式
-│   ├── wheel.css       # 转轮外圈、跑马灯与顶部发光指针样式
-│   └── modal.css       # 中奖提示弹窗、批量导入与历史记录抽屉
+│   ├── main.css        # Global theme, layout, typography, and controls
+│   ├── wheel.css       # Wheel container, indicator, and animations
+│   └── modal.css       # Winner dialog, batch import, and history drawer
 ├── js/
-│   ├── audio.js        # Web Audio API 声音合成器 (免外部音频资源)
-│   ├── confetti.js     # 全屏粒子彩带物理引擎
-│   ├── wheel.js        # Canvas 2D 转盘绘制、物理减速与指针碰撞检测
-│   ├── names.js        # 名单状态管理、本地存储持久化与预设
-│   └── app.js          # 主控制器与 UI 事件绑定
-├── server.js           # 极简本地静态 HTTP 服务器 (Node.js 内置模块)
-└── README.md           # 项目文档与交接说明
+│   ├── audio.js        # Web Audio API sound synthesizer (no external audio files required)
+│   ├── confetti.js     # Fullscreen confetti particle physics engine
+│   ├── wheel.js        # Canvas 2D wheel renderer, physics, and collision detection
+│   ├── names.js        # State management, local storage persistence, and presets
+│   ├── members.js      # Default member list presets
+│   └── app.js          # Main application controller and UI event bindings
+├── server.js           # Lightweight static HTTP server (Node.js built-in module)
+└── README.md           # Project documentation and guide
 ```
 
 ---
 
-## 🚀 启动与使用指南
+## Getting Started
 
-该项目为纯原生前端技术栈开发，**零第三方 npm 依赖**，可在任何安装有浏览器或 Node.js 的电脑上直接运行：
+Built with vanilla web platform technologies and **zero third-party npm dependencies**, this project runs directly on any computer with a modern browser or Node.js.
 
-### 方式一：Node.js 本地服务（推荐）
-在项目目录下打开终端运行：
+### Option 1: Node.js Local Server (Recommended)
+Open a terminal in the project directory and run:
 ```bash
 node server.js
 ```
-然后在浏览器访问：`http://localhost:3000`
+Then visit in your browser: `http://localhost:3000`
 
-### 方式二：直接双击打开
-直接用任何现代浏览器（Chrome / Edge / Safari / Firefox）双击打开 `index.html` 即可使用。
+### Option 2: Direct File Open
+Simply double-click `index.html` in any modern web browser (Chrome, Edge, Safari, Firefox) to run the application immediately.

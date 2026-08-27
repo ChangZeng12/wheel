@@ -13,5 +13,5 @@ window.COMPANY_MEMBERS = [
   { name: 'Sarah',  avatar: 'assets/images/Sarah.png',  color: '#FE9F62' },
   { name: 'Chang',  avatar: 'assets/images/Chang.png',  color: '#55C2C0' },
   { name: 'Daniel', avatar: 'assets/images/Daniel.png', color: '#FEB313' },
-  { name: 'Rachel', avatar: 'assets/images/Rachel.png', color: '#B87FFC' }
+  { name: 'Rachél', avatar: 'assets/images/Rachel.png', color: '#B87FFC' }
 ];
