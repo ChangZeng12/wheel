@@ -3,7 +3,7 @@
  * Enforces exclusive theme colors for preset company members and unique custom colors for new characters.
  */
 
-// 7 Preset Company Members Exclusive Colors
+// 8 Preset Company Members Exclusive Colors
 const EXCLUSIVE_MEMBER_COLORS = {
   'haley': '#E86262',
   'rhea': '#80BEFD',
@@ -11,7 +11,8 @@ const EXCLUSIVE_MEMBER_COLORS = {
   'sarah': '#FE9F62',
   'chang': '#55C2C0',
   'daniel': '#FEB313',
-  'rachél': '#B87FFC'
+  'rachél': '#B87FFC',
+  'rogger': '#567AA2'
 };
 
 const EXCLUSIVE_COLOR_SET = new Set(
@@ -77,7 +78,7 @@ class NamesManager {
   constructor() {
     this.storageKey = 'lucky_wheel_names_v5';
     this.historyKey = 'lucky_wheel_history_v6';
-    this.defaultNames = ['Haley', 'Rhea', 'Vivian', 'Sarah', 'Chang', 'Daniel', 'Rachél'];
+    this.defaultNames = ['Haley', 'Rhea', 'Vivian', 'Sarah', 'Chang', 'Daniel', 'Rachél', 'Rogger'];
 
     this.currentSessionId = 'session_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
     this.currentSessionTime = Date.now();
@@ -162,6 +163,17 @@ class NamesManager {
             }
           });
 
+          // Ensure any default preset member from COMPANY_MEMBERS is present in the list
+          if (window.COMPANY_MEMBERS && Array.isArray(window.COMPANY_MEMBERS)) {
+            window.COMPANY_MEMBERS.forEach(cm => {
+              const cleanCm = cm.name.trim().toLowerCase();
+              const exists = parsed.some(item => (item.name || '').trim().toLowerCase() === cleanCm);
+              if (!exists) {
+                parsed.push(this.createItem(cm));
+              }
+            });
+          }
+
           const usedColors = new Set();
 
           // Pass 1: Assign and reserve colors for preset members
@@ -169,9 +181,9 @@ class NamesManager {
             if (this.isPresetMember(item.name)) {
               item.color = this.getPresetMemberColor(item.name);
               usedColors.add(item.color.toUpperCase());
-              if (!item.avatar && window.COMPANY_MEMBERS) {
+              if (window.COMPANY_MEMBERS) {
                 const m = window.COMPANY_MEMBERS.find(cm => cm.name.toLowerCase() === item.name.toLowerCase());
-                if (m) item.avatar = m.avatar;
+                if (m && m.avatar) item.avatar = m.avatar;
               }
             }
           });

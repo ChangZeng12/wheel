@@ -19,7 +19,7 @@ class LuckyWheel {
     this.onSpinStart = options.onSpinStart || (() => {});
     this.onSpinEnd = options.onSpinEnd || (() => {});
 
-    // Member fixed theme color palette (EXCLUSIVE to the 7 company members)
+    // Member fixed theme color palette (EXCLUSIVE to the 8 company members)
     this.memberThemeColors = {
       'haley': '#E86262',
       'rhea': '#80BEFD',
@@ -27,7 +27,8 @@ class LuckyWheel {
       'sarah': '#FE9F62',
       'chang': '#55C2C0',
       'daniel': '#FEB313',
-      'rachél': '#B87FFC'
+      'rachél': '#B87FFC',
+      'rogger': '#567AA2'
     };
 
     this.exclusiveColors = new Set(
